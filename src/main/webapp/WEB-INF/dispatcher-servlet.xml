@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:webflow-config="http://www.springframework.org/schema/webflow-config"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow-config http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.4.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.8.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd">
+
+	<!-- This enables the Web MVC in spring - alternative java config is @EnableWebMvc -->
+
+	<mvc:annotation-driven />
+	<!--  registering uri paths to views without definning controllers
+	after possible with : java config -->
+	<!-- <mvc:view-controller path="/welcome" view-name="welcome"/> -->
+
+	<context:component-scan base-package="com.bshop.controllers" />
+
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/view/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+
+	<!-- Configures Handler Interceptors -->
+	<mvc:interceptors>
+		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" />
+	</mvc:interceptors>
+
+	<!-- save a locale change using a cookie -->
+	<!-- saves a locale change using a cookie -->
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver" 
+		/>
+
+	<!-- cannot be used for changing the locale- only uses the primary locale 
+		specified in "accept-language of the client settings Does not support setLocale" -->
+	<!-- dont use this for manual client locale options -->
+	<!-- <bean id="localeResolver" class="org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver" 
+		/> -->
+
+	<!-- This works and locale can be changed 
+	SO USE EITHER SessionLocaleResolver / CookieLocaleResolver-->
+
+<!-- 	<bean id="localeResolver"
+		class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
+ -->		
+<!-- 	<bean id="localeResolver"  
+			class="org.springframework.web.servlet.i18n.FixedLocaleResolver"/> -->
+
+	<!-- Application Message Bundle -->
+	<!--  there are two resource bundle message source
+	1. ResourceBundleMessageSource
+	2.ReloadableResourceBundleMessageSource -->
+	
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basename" value="/WEB-INF/messages/messages"></property>
+		<property name="cacheSeconds" value="0"></property>
+	</bean>
+
+	<bean id="books/order" name="books/order" 
+	class="com.bshop.config.OrderFlowHandler" />
+
+
+	<!-- <bean id="handler" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping"> 
+		<property name="alwaysUseFullPath" value="true" /> </bean> -->
+
+	<!-- launches an instance of flow execution -->
+	<webflow-config:flow-executor id="flowExecutor" />
+
+	<webflow-config:flow-registry id="flowRegistry"
+		base-path="/WEB-INF/flows">
+		<webflow-config:flow-location-pattern
+			value="**/*-flow.xml" />
+	</webflow-config:flow-registry>
+
+	<bean class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping">
+		<property name="flowRegistry" ref="flowRegistry" />
+	</bean>
+
+	<bean class="org.springframework.webflow.mvc.servlet.FlowHandlerAdapter">
+		<property name="flowExecutor" ref="flowExecutor" />
+	</bean>
+	
+<!-- 	<bean class="org.springframework.web.servlet.handler.AbstractDetectingUrlHandlerMapping">
+		
+	</bean> -->
+	
+
+	
+<!-- Example of SimpleUrlHandlerMapping  	
+
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/welcome.htm">welcomeController</prop>
+				<prop key="/flow/order/*">orderController</prop>
+				<prop key="/login.htm">loginController</prop>
+			</props>
+		</property>	
+	</bean>
+	
+	<bean id="loginController" class="com.bshop.controllers.LoginController" />
+	
+	<bean id="orderController" class="com.bshop.controllers.OrderController" /> -->
+	
+<!-- Tested : working 	
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="urlMap">
+				<map>
+					<entry key="/welcome.htm" value="welcomeController" />
+				</map>
+		</property>	
+	</bean>
+	
+	<bean id="welcomeController" class="com.bshop.controllers.WelcomeController" />
+ -->
+
+</beans>
